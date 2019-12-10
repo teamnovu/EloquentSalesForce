@@ -187,6 +187,10 @@ class SOQLGrammar extends Grammar
 	 */
 	protected function whereBoolean(Builder $query, $where)
 	{
+        $query->bindings['where'] = collect($query->bindings['where'])->filter(function ($binding) {
+            return !is_bool($binding);
+        })->toArray();
+
 		if ($where['value'] === true) {
 			return $this->wrap($where['column']) . $where['operator'] . 'TRUE';
 		} else {
