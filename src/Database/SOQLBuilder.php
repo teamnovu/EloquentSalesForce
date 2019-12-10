@@ -39,7 +39,7 @@ class SOQLBuilder extends Builder
 					return $item;
 				}
 			} catch (\Exception $e) {
-				if (is_int($item) || is_float($item)) {
+				if (is_int($item) || is_float($item) || is_bool($item)) {
 					return $item;
 				} else {
 					return "'$item'";
@@ -47,7 +47,14 @@ class SOQLBuilder extends Builder
 			}
 			return "'$item'";
 		}, $this->getBindings());
-		$prepared = Str::replaceArray('?', $bindings, $query);
+
+        // remove all booleans in binding since these are directly set by eloquents querybuilder
+        $bindings = collect($bindings)->filter(function ($binding) {
+            return !is_bool($binding);
+        })->toArray();
+
+        $prepared = Str::replaceArray('?', $bindings, $query);
+
 		return $prepared;
 	}
 
